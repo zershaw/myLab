@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.cbsys.saleexplore.idao.IDiscountImageDAO">
+
+    <select id="get" resultType="com.cbsys.saleexplore.entity.DiscountImage">
+        SELECT *
+        FROM T_DISCOUNT_IMAGE
+        <where>
+            <if test="id != null ">
+                AND id = #{id}
+            </if>
+            <if test="discountId != null ">
+                AND discountId = #{discountId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cbsys.saleexplore.entity.DiscountImage">
+        INSERT INTO T_DISCOUNT_IMAGE (
+        discountId,
+        orderIndex,
+        title,
+        imageName)
+        VALUES
+        (#{discountImage.discountId},
+        #{discountImage.orderIndex},
+        #{discountImage.title},
+        #{discountImage.imageName} )
+    </insert>
+
+
+    <update id = "update">
+        UPDATE T_DISCOUNT_IMAGE SET
+        <if test = "title != null">
+            title = #{title}
+        </if>
+        <if test = "orderIndex != null">
+            orderIndex = #{orderIndex}
+        </if>
+        WHERE id = #{id}
+    </update>
+
+
+    <delete id="delete">
+        delete from T_DISCOUNT_IMAGE where id = #{id}
+    </delete>
+
+
+</mapper>

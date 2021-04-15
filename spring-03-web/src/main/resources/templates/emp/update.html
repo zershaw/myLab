@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--  <link rel="stylesheet" type="text/css" href="../css/T1.css">-->
+    <title>修改员工信息</title>
+</head>
+<body>
+<a href="/emps">返回员工列表</a>
+<a th:href="@{/user/logout}">注销</a>
+<form class="form-horizontal" th:action="@{/updateEmp}" method="post">
+    <input type="hidden" name="id" th:value="${emp.getId()}" >
+    <div class="form-group">
+        <label>名字</label>
+            <input type="text" class="form-control"  name="lastName" th:value="${emp.getLastName()}">
+    </div>
+    <div class="form-group">
+        <label>邮件</label>
+            <input type="email" class="form-control" th:value="${emp.getEmail()}" name="email">
+    </div>
+    <div class="form-group">
+        <label>性别</label>
+            <label>
+                <input th:checked="${emp.getGender()==1}" type="radio" name="gender" checked value="1">&nbsp;男
+            </label>
+            &nbsp;&nbsp;&nbsp;
+            <label>
+                <input th:checked="${emp.getGender()==0}" type="radio" name="gender" value="0">&nbsp;女
+            </label>
+    </div>
+    <div class="form-group">
+        <label>部门</label>
+            <select class="form-control" name="department.id">
+                <option th:selected="${emp.getDepartment().getId()==dept.getId()}" th:each="dept:${departments}" th:text="${dept.getDepartment()}" th:value="${dept.getId()}"></option>
+            </select>
+    </div>
+    <div class="form-group">
+        <label>生日</label>
+            <input th:value="${#dates.format(emp.getBirth(),'yyyy/MM/dd')}" type="text" class="form-control"  name="birth">
+    </div>
+    <div class="form-group">
+            <button class="btn btn-sm btn-success" type="submit">修改</button>
+    </div>
+</form>
+</body>
+</html>

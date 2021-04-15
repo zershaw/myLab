@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cbsys.saleexplore.idao.IStoreDAO">
+
+    <!-- This payload is used to attach some store information to the discount of a single discount-->
+    <resultMap id="DiscountDetailStorePd" type="com.cbsys.saleexplore.payload.DiscountDetailStorePd">
+        <result property="id" column="id"></result>
+        <result property="name" column="name"></result>
+        <result property="mallName" column="mallName"></result>
+        <result property="distance" column="distance"></result>
+
+        <result property="phoneNumber" column="phoneNumber"></result>
+
+        <result property="email" column="email"></result>
+        <result property="cityName" column="cityName"></result>
+        <result property="latitude" column="latitude"></result>
+        <result property="longitude" column="longitude"></result>
+    </resultMap>
+
+    <!-- This payload is used to attach some store information to the discount of a discount list-->
+    <resultMap id="DiscountListStorePd" type="com.cbsys.saleexplore.payload.DiscountListStorePd">
+        <result property="id" column="id"></result>
+        <result property="name" column="name"></result>
+        <result property="mallName" column="mallName"></result>
+        <result property="distance" column="distance"></result>
+    </resultMap>
+
+
+    <select id="getDiscountDetailStorePd" resultMap="DiscountDetailStorePd">
+        SELECT ts.id, ts.name as name, tm.name as mallName, ts.phoneNumber as phoneNumber,
+        ts.email as email, tc.cityName as cityName, ts.cityId as cityId,
+        ts.latitude,
+        ts.longitude
+        FROM T_STORE ts
+        LEFT JOIN T_MALL tm ON ts.mallId=tm.id
+        LEFT JOIN T_CITY tc ON ts.cityId=tc.id
+        <where>
+            ts.id = #{id}
+        </where>
+    </select>
+
+
+    <select id="getDiscountListStorePd" resultMap="DiscountListStorePd">
+        SELECT ts.id, ts.name as name, tm.name as mallName
+        <if test="latitude != 0 or longitude != 0">
+            ,ST_Length (
+            LineString ( ts.geoPoint, Point ( #{latitude}, #{longitude} ) )
+            ) * 111.1 AS distance
+        </if>
+        FROM T_STORE ts
+        LEFT JOIN T_MALL tm ON ts.mallId=tm.id
+        <where>
+            <if test="ids != null and !ids.isEmpty()">
+                ts.id IN
+                <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <resultMap id="Store" type="com.cbsys.saleexplore.entity.Store">
+        <id column="id" property="id"></id>
+        <result property="name" column="name"></result>
+        <result property="webUrl" column="webUrl"></result>
+        <result property="location" column="location"></result>
+        <result property="infoDescription" column="infoDescription"></result>
+        <result property="phoneNumber" column="phoneNumber"></result>
+        <result property="openingHours" column="openingHours"></result>
+        <result property="email" column="email"></result>
+        <result property="mallId" column="mallId"></result>
+        <result property="cityId" column="cityId"></result>
+
+        <result property="latitude" column="latitude"></result>
+        <result property="longitude" column="longitude"></result>
+
+
+        <result property="cityName" column="cityName"></result>
+        <result property="mallName" column="mallName"></result>
+        <result property="isVerified" column="isVerified"></result>
+        <result property="isDeleted" column="isDeleted"></result>
+
+        <result property="popularity" column="popularity"></result>
+
+        <result property="distance" column="distance"></result>
+
+        <result property="numberOfDiscounts" column="numberOfDiscounts"></result>
+
+        <collection property="storeImages" ofType="com.cbsys.saleexplore.entity.StoreImage">
+            <result property="imageName" column="imageName"></result>
+            <result property="orderIndex" column="orderIndex"></result>
+        </collection>
+
+        <collection property="categories" ofType="com.cbsys.saleexplore.entity.Category">
+            <result property="name" column="categoryName"></result>
+        </collection>
+    </resultMap>
+
+    <sql id="queryWhere">
+        <where>
+            <if test="ids != null and !ids.isEmpty()">
+                ts.id IN
+                <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="notInIds != null and !notInIds.isEmpty()">
+                AND ts.id NOT IN
+                <foreach collection="notInIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="qPd != null and qPd.cityId != 0">
+                AND ts.cityId=#{qPd.cityId}
+            </if>
+            <if test="qPd != null and qPd.mallId != 0">
+                AND ts.mallId=#{qPd.mallId}
+            </if>
+            <if test="qPd != null and (qPd.latitude != 0 or qPd.longitude != 0) and qPd.nearby != 0">
+                AND MBRContains (
+                LineString (
+                Point ( #{qPd.latitude} + #{qPd.nearby} / ( 111.1 / COS( RADIANS( #{qPd.longitude} ) ) ),
+                #{qPd.longitude} + #{qPd.nearby} / 111.1 ),
+                Point ( #{qPd.latitude} - #{qPd.nearby} / ( 111.1 / COS( RADIANS( #{qPd.longitude} ) ) ),
+                #{qPd.longitude} - #{qPd.nearby} / 111.1 )
+                ),
+                ts.geoPoint
+                )
+            </if>
+            AND ts.isDeleted != 1
+        </where>
+    </sql>
+
+    <sql id="queryOrderBy">
+        <choose>
+            <when test="qPd != null and qPd.orderBy.code == 0">
+                ORDER BY ts.id DESC
+            </when>
+            <when test="qPd != null and qPd.orderBy.code == 1">
+                ORDER BY ts.popularity DESC, ts.id DESC
+            </when>
+            <when test="qPd != null and (qPd.orderBy.code == 2 and (qPd.latitude != 0 or qPd.longitude != 0))">
+                ORDER BY distance ASC, ts.id DESC
+            </when>
+            <otherwise>
+                <if test="ids != null and !ids.isEmpty()">
+                    ORDER BY
+                    <foreach collection="ids" item="id" open="field(ts.id, " close=")" separator=",">
+                        #{id}
+                    </foreach>
+                </if>
+            </otherwise>
+        </choose>
+
+        <if test="qPd != null and qPd.limit != 0">
+            LIMIT #{qPd.maxId}, #{qPd.limit}
+        </if>
+    </sql>
+
+    <select id="getIds" resultType="Long">
+        SELECT id FROM (
+        SELECT ts.id
+        <if test="qPd != null and qPd.orderBy.code == 2 and (qPd.latitude != 0 or qPd.longitude != 0)">
+            ,ST_Length (
+            LineString ( ts.geoPoint, Point ( #{qPd.latitude}, #{qPd.longitude} ) )
+            ) * 111.1 AS distance
+        </if>
+        FROM T_STORE ts
+
+        <include refid="queryWhere"/>
+
+        <include refid="queryOrderBy"/>
+        ) t_results
+
+    </select>
+
+    <select id="get" resultMap="Store">
+        SELECT t_store.*,
+        t_category.name as categoryName,
+        ti.orderIndex as orderIndex,
+        ti.imageName as imageName
+        FROM(
+        SELECT ts.*,
+        <if test="qPd != null and (qPd.latitude != 0 or qPd.longitude != 0)">ST_Length (
+            LineString (
+            ts.geoPoint, Point ( #{qPd.latitude}, #{qPd.longitude} ) )
+            ) * 111.1 AS distance,
+        </if>
+        tm.name as mallName,
+        tc.cityName as cityName
+
+        FROM T_STORE ts
+        LEFT JOIN T_MALL tm ON ts.mallId=tm.id
+        LEFT JOIN T_CITY tc ON ts.cityId=tc.id
+
+        <include refid="queryWhere"/>
+
+        <include refid="queryOrderBy"/>
+        ) t_store
+        LEFT JOIN T_STORE_IMAGE ti ON t_store.id=ti.storeId
+        LEFT JOIN T_STORE_CATEGORY t_store_category ON t_store.id = t_store_category.storeId
+        LEFT JOIN T_CATEGORY t_category ON t_category.id = t_store_category.categoryId
+    </select>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cbsys.saleexplore.entity.Store">
+        INSERT INTO T_STORE (name,
+                             webUrl,
+                             location,
+                             infoDescription,
+                             phoneNumber,
+                             openingHours,
+                             email,
+                             mallId,
+                             cityId)
+        VALUES (#{store.name},
+                #{store.webUrl},
+                #{store.location},
+                #{store.infoDescription},
+                #{store.phoneNumber},
+                #{store.openingHours},
+                #{store.email},
+                #{store.mallId},
+                #{store.cityId})
+    </insert>
+
+
+    <update id="updatePopularity">
+        UPDATE T_STORE
+        <set>
+            popularity = (select avg(score) from T_STORE_RATING where storeId = #{id})
+        </set>
+        <where>id = #{id}</where>
+    </update>
+
+
+    <delete id="delete">
+        delete
+        from T_STORE
+        <where>id = #{id}</where>
+    </delete>
+
+    <update id="updateDiscountNumber">
+        UPDATE T_STORE ts
+        <set>
+            numberOfDiscounts=(
+            SELECT count(*)
+            FROM T_DISCOUNT td
+            WHERE
+            td.storeId=ts.id AND td.isValid=1
+            AND (td.endTime IS NULL OR td.endTime &gt;= CURRENT_TIMESTAMP)
+            )
+        </set>
+        <where>
+            <if test="id != 0">
+                AND ts.id = #{id}
+            </if>
+        </where>
+    </update>
+
+
+</mapper>
+

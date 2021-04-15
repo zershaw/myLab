@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.cbsys.saleexplore.idao.IDiscountDAO">
+
+
+    <resultMap id="Discount" type="com.cbsys.saleexplore.entity.Discount">
+        <id column="id" property="id"></id>
+        <result property="startTime" column="startTime"></result>
+        <result property="endTime" column="endTime"></result>
+        <result property="publishTime" column="publishTime"></result>
+
+        <result property="title" column="title"></result>
+        <result property="viewCount" column="viewCount"></result>
+        <result property="likeCount" column="likeCount"></result>
+        <result property="dislikeCount" column="dislikeCount"></result>
+        <result property="infoDescription" column="infoDescription"></result>
+
+        <result property="storeId" column="storeId"></result>
+
+        <result property="creatorId" column="creatorId"></result>
+        <result property="creatorRole" column="creatorRole"></result>
+
+        <result property="categoryId" column="categoryId"></result>
+
+        <result property="relatedLinks" column="relatedLinks"></result>
+        <result property="videoName" column="videoName"></result>
+
+        <result property="isOnline" column="isOnline"></result>
+        <result property="isValid" column="isValid"></result>
+        <result property="isDeleted" column="isDeleted"></result>
+
+        <result property="originalPrice" column="originalPrice"></result>
+        <result property="finalPrice" column="finalPrice"></result>
+        <result property="savingAmount" column="savingAmount"></result>
+        <result property="discountTag" column="discountTag"></result>
+
+        <result property="discountType" column="discountType" javaType="com.cbsys.saleexplore.enums.DiscountTypeEm"
+                typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"></result>
+
+        <collection property="discountImages" ofType="com.cbsys.saleexplore.entity.DiscountImage">
+            <result property="orderIndex" column="orderIndex"></result>
+            <result property="imageName" column="imageName"></result>
+        </collection>
+
+    </resultMap>
+
+
+    <sql id="queryWhere">
+        <where>
+            <if test="ids != null and !ids.isEmpty()">
+                td.id IN
+                <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="notInIds != null and !notInIds.isEmpty()">
+                AND td.id NOT IN
+                <foreach collection="notInIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="qPd != null and qPd.storeId != 0 ">
+                AND td.storeId = #{qPd.storeId}
+            </if>
+            <if test="qPd != null and qPd.onlyOnline != false ">
+                AND td.isOnline = 1
+            </if>
+            <if test="qPd != null and qPd.onlyOffline != false ">
+                AND td.isOnline = 0
+            </if>
+            <if test="qPd != null and qPd.onlyValid == true ">
+                AND td.isValid=1
+                AND (td.endTime IS NULL OR td.endTime &gt;= CURRENT_TIMESTAMP)
+            </if>
+            <if test="qPd != null and qPd.onlyUpComing != false ">
+                AND (td.startTime IS NULL OR td.startTime &gt; CURRENT_TIMESTAMP)
+            </if>
+            <if test="qPd != null and qPd.onlyOnGoing != false ">
+                AND (td.startTime IS NULL OR td.startTime &lt;= CURRENT_TIMESTAMP)
+            </if>
+
+            AND td.isDeleted != 1
+        </where>
+    </sql>
+
+    <sql id="queryOrderBy">
+        <choose>
+            <when test="qPd != null and qPd.orderBy.code == 0">
+                ORDER BY td.id DESC
+            </when>
+
+            <when test="qPd != null and ((qPd.latitude != 0 or qPd.latitude != 0) and qPd.orderBy.code == 1)">
+                ORDER BY distance DESC, td.id DESC
+            </when>
+
+            <when test="qPd != null and qPd.orderBy.code == 2">
+                ORDER BY td.likeCount DESC
+            </when>
+            <when test="qPd != null and qPd.orderBy.code == 3">
+                ORDER BY td.finalPrice ASC
+            </when>
+            <when test="qPd != null and qPd.orderBy.code == 4">
+                ORDER BY td.finalPrice DESC
+            </when>
+
+            <otherwise>
+                <if test="ids != null and !ids.isEmpty()">
+                    ORDER BY
+                    <foreach collection="ids" item="id" open="field(td.id, " close=")" separator=",">
+                        #{id}
+                    </foreach>
+                </if>
+            </otherwise>
+        </choose>
+
+        <if test="qPd != null and qPd.limit != 0">
+            LIMIT #{qPd.maxId}, #{qPd.limit}
+        </if>
+    </sql>
+
+
+    <select id="getIds" resultType="Long">
+        SELECT id FROM (
+        SELECT td.id
+        <if test="qPd != null and ((qPd.latitude != 0 or qPd.longitude != 0) and qPd.orderBy.code == 1) ">
+            ,ST_Length (
+            LineString ( ts.geoPoint, Point ( #{qPd.latitude}, #{qPd.longitude} ) )
+            ) * 111.1 AS distance
+        </if>
+        FROM T_DISCOUNT td
+        <if test="qPd != null and qPd.orderBy.code == 1">
+            LEFT JOIN T_STORE ts on td.storeId = ts.id
+        </if>
+        <include refid="queryWhere"/>
+
+        <include refid="queryOrderBy"/>
+        ) t_results
+
+    </select>
+
+
+    <select id="get" resultMap="Discount">
+        SELECT t_discount.*,
+        ti.orderIndex as orderIndex,
+        ti.imageName as imageName
+        FROM
+        (
+            SELECT *
+            FROM T_DISCOUNT td
+            <include refid="queryWhere"/>
+            <include refid="queryOrderBy"/>
+        ) t_discount
+        LEFT JOIN T_DISCOUNT_IMAGE ti ON t_discount.id=ti.discountId
+    </select>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.cbsys.saleexplore.entity.Discount">
+        INSERT INTO T_DISCOUNT (startTime,
+                                endTime,
+                                publishTime,
+                                title,
+                                infoDescription,
+                                storeId,
+                                creatorId,
+                                categoryId,
+                                relatedLinks,
+                                videoName,
+                                isOnline,
+                                isValid,
+                                originalPrice,
+                                finalPrice,
+                                savingAmount,
+                                discountType,
+                                discountTag)
+        VALUES (#{discount.startTime},
+                #{discount.endTime},
+                #{discount.publishTime},
+                #{discount.title},
+                #{discount.infoDescription},
+                #{discount.storeId},
+                #{discount.creatorId},
+                #{discount.categoryId},
+                #{discount.relatedLinks},
+                #{discount.videoName},
+                #{discount.isOnline},
+                #{discount.isValid},
+                #{discount.originalPrice},
+                #{discount.finalPrice},
+                #{discount.savingAmount},
+                #{discount.discountType.code},
+                #{discount.discountTag})
+    </insert>
+
+
+    <update id="update">
+        UPDATE T_DISCOUNT
+        <set>
+            <if test="updatePd.discountType != null">
+                discountType = #{updatePd.discountType}
+            </if>
+            <if test="updatePd.startTime != null">
+                startTime = #{updatePd.startTime}
+            </if>
+            <if test="updatePd.endTime != null">
+                endTime = #{updatePd.endTime}
+            </if>
+            <if test="updatePd.title != null">
+                title = #{updatePd.title}
+            </if>
+            <if test="updatePd.infoDescription != null">
+                infoDescription = #{updatePd.infoDescription}
+            </if>
+            <if test="updatePd.storeId != null">
+                storeId = #{updatePd.storeId}
+            </if>
+            <if test="updatePd.categoryId != null">
+                categoryId = #{updatePd.categoryId}
+            </if>
+            <if test="updatePd.discountTags != null">
+                discountTags = #{updatePd.discountTags}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+
+    <delete id="delete">
+        DELETE
+        FROM T_DISCOUNT
+        <where>id = #{id}</where>
+    </delete>
+
+    <update id="updateRatingCount">
+        UPDATE T_DISCOUNT
+        <set>
+            likeCount = #{countPd.likeCount},
+            dislikeCount = #{countPd.dislikeCount}
+        </set>
+        <where>id = #{id}</where>
+    </update>
+
+    <update id="increaseViewCount">
+        UPDATE T_DISCOUNT
+        <set>
+            viewCount= viewCount + 1
+        </set>
+        <where>id = #{id}</where>
+    </update>
+
+    <select id="getDiscountRatingCount" resultType="com.cbsys.saleexplore.payload.DiscountRatingCountPd">
+        SELECT likeCount, dislikeCount
+        FROM T_DISCOUNT
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+
+</mapper>

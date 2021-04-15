@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--  <link rel="stylesheet" type="text/css" href="../css/T1.css">-->
+    <title>登录</title>
+    <style>
+        #para1 { text-align:center; color:red; }
+        #boder{
+            border-color: #ff0000;
+            /*border-width: 15px 20px 30px 20px;*/
+            border-style: solid;
+            border-radius: 25px;
+            width: 300px;
+            height: 150px;
+            align: center;
+            text-align: center;
+
+        }
+        /*body{*/
+        /*  text-align: center;*/
+        /*}*/
+        div{ margin:0 auto; width:400px; height:100px; border:0px solid #F00}
+    </style>
+</head>
+<body>
+<div>
+    <form id="boder" th:action="@{/login}">
+        <b th:text="#{login.tip}">请登录</b><br>
+        请填写个人信息
+        <p th:text="${msg}" style="color: #FF0000"></p>
+        <hr>
+        账号:<input type="text" name = "username"><br>
+        密码:<input type="password"  name = "password" ><br>
+        <input type="submit" >
+        没有账号?   <a href="../LoginDemo/register.html">注册一个</a>
+
+
+    </form>
+</div>
+</body>
+</html>

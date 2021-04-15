@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--  <link rel="stylesheet" type="text/css" href="../css/T1.css">-->
+    <title>添加员工</title>
+</head>
+<body>
+<a href="/emps">返回员工列表</a>
+<a th:href="@{/user/logout}">注销</a>
+<form class="form-horizontal" th:action="@{/addoneemp}" method="post">
+    <div class="form-group">
+        <label>名字</label>
+        <div>
+            <input type="text" class="form-control" placeholder="张三" name="lastName">
+        </div>
+    </div>
+    <div class="form-group">
+        <label>邮件</label>
+        <div>
+            <input type="email" class="form-control" placeholder="1234567456@qq.com" name="email">
+        </div>
+    </div>
+    <div class="form-group">
+        <label>性别</label>
+        <div>
+            <label>
+                <input type="radio" name="gender" checked value="1">&nbsp;男
+            </label>
+            &nbsp;&nbsp;&nbsp;
+            <label>
+                <input type="radio" name="gender" value="0">&nbsp;女
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>部门</label>
+        <div>
+            <select class="form-control" name="department.id">
+                <option th:each="dept:${departments}" th:text="${dept.getDepartment()}" th:value="${dept.getId()}"></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>生日</label>
+        <div>
+            <input type="text" class="form-control" placeholder="2000/11/11" name="birth">
+        </div>
+    </div>
+    <div class="form-group">
+        <div>
+            <button type="submit">添加</button>
+        </div>
+    </div>
+</form>
+</body>
+</html>

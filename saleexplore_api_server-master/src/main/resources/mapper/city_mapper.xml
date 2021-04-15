@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cbsys.saleexplore.idao.ICityDAO">
+    <select id="get" resultType="com.cbsys.saleexplore.entity.City">
+        SELECT *
+        FROM T_CITY
+        <where>
+            <if test = "id != null">
+                AND id = #{id}
+            </if>
+            <if test = "cityName != null">
+                AND cityName = #{cityName}
+            </if>
+            <if test = "countryId != null">
+                AND countryId = #{countryId}
+            </if>
+            <if test = "isActive != null">
+                AND isActive = #{isActive}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cbsys.saleexplore.entity.City">
+        INSERT INTO T_CITY (
+        cityName,
+        countryId,
+        countryName,
+        currency,
+        timezone,
+        cityFlightCode,
+        isActive)
+        VALUES
+        (#{city.cityName},
+        #{city.countryId},
+        #{city.currency},
+        #{city.timezone},
+        #{city.cityFlightCode},
+        #{city.isActive})
+    </insert>
+
+
+    <update id = "update">
+        UPDATE T_CITY SET
+        <if test = "cityName != null">
+            cityName = #{cityName}
+        </if>
+        WHERE id = #{id}
+    </update>
+
+
+    <delete id = "delete">
+        DELETE FROM T_CITY where id = #{id}
+    </delete>
+
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cbsys.saleexplore.idao.ICategoryDAO">
+
+
+    <resultMap id = "Category" type = "com.cbsys.saleexplore.entity.Category">
+        <id column="id" property="id"></id>
+        <result property="name" column="name"></result>
+        <result property="synonyms" column="synonyms"></result>
+        <result property="parentId" column="parentId"></result>
+    </resultMap>
+
+
+    <select id="getAll" resultMap="Category">
+        SELECT *
+        FROM T_CATEGORY
+    </select>
+
+
+
+
+
+</mapper>

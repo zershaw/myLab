@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thyemleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p>登录</p>
+<hr>
+<p th:text = "${exception}" style="color: #ff0000;"></p>
+<form th:action="@{/login}">
+    <p>用户名：<input type="text" name="username"></p>
+    <p>密码：<input type="text" name="password"></p>
+    <p><input type="submit"></p>
+</form>
+</body>
+</html>

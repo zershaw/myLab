@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cbsys.saleexplore.idao.ICountryDAO">
+    <select id="get" resultType="com.cbsys.saleexplore.entity.Country">
+        SELECT *
+        FROM T_COUNTRY
+        <where>
+            <if test = "id != null">
+                AND id = #{id}
+            </if>
+            <if test = "iso2 != null">
+                AND iso2 = #{iso2}
+            </if>
+            <if test = "countryName != null">
+                AND countryName = #{countryName}
+            </if>
+        </where>
+    </select>
+
+</mapper>

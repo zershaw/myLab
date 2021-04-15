@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 满足SQLsession的调用 -->
+<!-- 该mapper配置文件起到了接口实现类的作用，namespace绑定一个对应的Dao/Mapper接口 -->
+<mapper namespace="com.czx.mapper.UserMapper">
+    <select id="getUserList" resultType="com.czx.pojo.User">
+        select * from user
+    </select>
+
+    <insert id="addUser" parameterType="com.czx.pojo.User">
+    insert into user (id,name,pwd) values (#{id},#{name},#{pwd})
+    </insert>
+
+    <resultMap id="UserMap" type="com.czx.pojo.User">
+        <!-- id为主键 -->
+        <id column="id" property="id"/>
+        <!-- column是数据库表的列名 , property是对应实体类的属性名 -->
+        <result column="name" property="name"/>
+        <result column="pwd" property="password"/>
+    </resultMap>
+
+     <!--标签里的属性是 resultMap 而不是 resultType ！！！-->
+    <select id="selectUserById" resultMap ="UserMap">
+         select * from user where id = #{id}
+    </select>
+</mapper>

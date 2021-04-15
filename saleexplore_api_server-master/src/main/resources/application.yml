@@ -1,0 +1,127 @@
+server:
+  port: 9443
+  ssl:
+    key-store-type: PKCS12
+    key-store: classpath:secrets/saleexplore.com.p12
+    key-store-password: lei_0817_hector
+    key-alias:  saleexplore
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+        exclude:  env,beans
+
+spring:
+
+  profiles:
+    active: default
+
+  datasource:
+    url: jdbc:mysql://sale-explore.c3phboxdrnth.ap-southeast-1.rds.amazonaws.com:3306/saleexplore_dev?serverTimezone=UTC
+    username: api-server-dev
+    password: JbbKY3tsSbCqFX9t33Zz
+
+
+  # REDIS (RedisProperties)
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000
+
+  # Email Settings
+  mail:
+    default-encoding: UTF-8
+    host: smtp.gmail.com
+    port: 587
+    username: chainboats.sys@gmail.com # TODO. upgrade the security
+    password: lei_0817_hector
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+            required: true
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+
+
+
+  # MULTIPART (MultipartProperties)
+  servlet:
+    multipart:
+      # Enable multipart uploads
+      enabled: true
+      # Threshold after which files are written to disk.
+      file-size-threshold: 2KB
+      # Max file size.
+      max-file-size: 200MB
+      # Max Request Size
+      max-request-size: 215MB
+
+mybatis:
+  # default value
+  #    annotationClass: org.springframework.boot.mybatis.autoconfigure.Mapper
+  #    configLocation: "mybatis-configuration.xml"
+  mapper-locations: "classpath*:mapper/*.xml"
+
+  configuration-properties:
+    aggressiveLazyLoading: false
+    lazyLoadingEnabled: true
+    lazyLoadTriggerMethods: ""
+    mapUnderscoreToCamelCase: true
+
+
+logging:
+  level:
+    org:
+      springframework:
+        security: debug
+    com:
+      iiai:
+        discountserver: debug
+
+
+app:
+  # some custom defined values
+  serverBaseUrl: https://api.saleexplore.com:8443/
+  promotionBaseUrl: https://saleexplore.com
+  imageTaggerBaseUrl: http://10.10.1.190:8084/
+  profaneImageFilterBaseUrl: http://10.10.1.190:8086/
+
+  discountLuceneIndexDir: lucene_index/discount_index/
+  storeLuceneIndexDir: lucene_index/store_index/
+
+  auth:
+    tokenSecret: kzzMW1HqJ1SJMuobjtFPFTALE9SjErkf
+    tokenExpirationMsec: 86400000 # one day
+    # For wechat login/register
+    wechatAppID: wx9bd3a56e2db55e4e
+    wechatAppSecrete: b1ded3485ded1c136f31aa5dd9a33202
+
+    # For facebook login/register
+    facebookAppID: 212906169651781
+    facebookAppSecrete: 87dfee87ec117cf931e819a54a79f90f
+
+    # for
+    awsS3BucketName: sale-explore
+    awsAccessKeyId: AKIAYLPAW54OA3ABM3I5
+    awsAccessKeySecrete: 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
+
+  ios:
+    pushCertificatePd: mTYKJBwAmD346duj
+    pushCertificatePath: "secrets/apns_development.p12"
+
+  async:
+    asyncCorePoolSize: 10
+    asyncMaxPoolSize: 20
+    asyncKeepAliveSecs: 4
+    asyncQueueCapacity: 512
+
+  debug: true
+

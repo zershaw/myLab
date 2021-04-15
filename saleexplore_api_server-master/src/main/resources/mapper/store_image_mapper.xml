@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.cbsys.saleexplore.idao.IStoreImageDAO">
+
+    <select id="get" resultType="com.cbsys.saleexplore.entity.StoreImage">
+        SELECT *
+        FROM T_STORE_IMAGE
+        <where>
+            <if test="id != null ">
+                AND id = #{id}
+            </if>
+            <if test="storeId != null ">
+                AND storeId = #{storeId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cbsys.saleexplore.entity.StoreImage">
+        INSERT INTO T_STORE_IMAGE (
+        storeId,
+        orderIndex,
+        title,
+        imageName)
+        VALUES
+        (#{storeImage.storeId},
+        #{storeImage.orderIndex},
+        #{storeImage.title},
+        #{storeImage.imageName} )
+    </insert>
+
+
+    <update id = "update">
+        UPDATE T_STORE_IMAGE SET
+        <if test = "title != null">
+            title = #{title}
+        </if>
+        <if test = "orderIndex != null">
+            orderIndex = #{orderIndex}
+        </if>
+        WHERE id = #{id}
+    </update>
+
+
+    <delete id="delete">
+        delete from T_STORE_IMAGE where id = #{id}
+    </delete>
+
+
+</mapper>
