@@ -1,9 +1,0 @@
-app:
-  # some custom defined values
-  serverBaseUrl: https://10.10.1.190.net:8443/
-  promotionBaseUrl: https://10.10.1.190.net:9443/
-  ios:
-    pushCertificatePd: mTYKJBwAmD346duj
-    pushCertificatePath: "secrets/apns_distribution.p12"
-
-  debug: false

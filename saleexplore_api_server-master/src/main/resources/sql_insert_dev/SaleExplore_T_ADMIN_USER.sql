@@ -1,1 +1,0 @@
-INSERT INTO T_ADMIN_USER (id, email, emailVerified, username, password, isEnabled, role, lastTimeLogin, mobilePhoneNumber, countryId) VALUES (1, 'admin@gmail.com', 0, 'ysh', '$2a$10$zaEsiqr7HaDfeUs.CSP/POcs8l/v/n9M0tPGvYMBE1vQh1eD0lhua', 1, 1, '2019-10-02 13:10:25', null, 232);

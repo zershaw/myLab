@@ -1,5 +1,0 @@
-INSERT INTO T_ADS (id, redirectUrl, imageName, isActive, orderIndex, redirectType, displayType, createdTime) VALUES (1, 'https://www.luluhypermarket.com/en-ae/tvs-electronics/c/HY00214796?q=%3Arelevance%3Abrand%3ALG&text=', 'banner01.jpg', 1, 0, 2, 0, '2019-09-12 11:38:04');
-INSERT INTO T_ADS (id, redirectUrl, imageName, isActive, orderIndex, redirectType, displayType, createdTime) VALUES (2, 'https://www.ikea.com/ae/en/p/vangsta-teodores-table-and-4-chairs-white-white-s59221189/', 'banner02.jpg', 1, 1, 2, 0, '2019-09-12 11:38:04');
-INSERT INTO T_ADS (id, redirectUrl, imageName, isActive, orderIndex, redirectType, displayType, createdTime) VALUES (3, 'https://galerieslafayettedubai.com/lab/', 'banner03.jpg', 1, 2, 2, 0, '2019-09-12 11:38:05');
-INSERT INTO T_ADS (id, redirectUrl, imageName, isActive, orderIndex, redirectType, displayType, createdTime) VALUES (4, 'https://www.jumbo.ae/', 'banner04.jpg', 1, 3, 2, 0, '2019-09-12 11:38:05');
-INSERT INTO T_ADS (id, redirectUrl, imageName, isActive, orderIndex, redirectType, displayType, createdTime) VALUES (6, null, 'splash_ads.png', 1, 0, 0, 1, '2019-09-13 05:42:03');
